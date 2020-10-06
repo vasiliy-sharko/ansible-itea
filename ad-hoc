@@ -1,0 +1,5 @@
+ansible ubuntu -a "cat /etc/*-release"
+
+ansible amzl -m "yum" -a "name=httpd state=present"
+
+ansible linux -m "user" -a "name=itea uid=1001"
