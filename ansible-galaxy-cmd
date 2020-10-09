@@ -1,0 +1,3 @@
+ansible-galaxy init test-role
+
+ansible-galaxy install --roles-path . geerlingguy.apache

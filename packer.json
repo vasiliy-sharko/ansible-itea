@@ -1,0 +1,37 @@
+{
+  "provisioners": [{
+    "type": "ansible",
+    "playbook_file": "./main.yml",
+    "extra_arguments": ["-b"]
+  }],
+  "builders": [{
+    "type": "amazon-ebs",
+    "profile": "vsharko",
+    "region": "us-east-2",
+    "source_ami_filter": {
+          "filters": {
+              "virtualization-type": "hvm",
+              "name": "ubuntu/images/*ubuntu-xenial-16.04-amd64-server-*",
+              "root-device-type": "ebs"
+    },
+    "owners": ["099720109477"],
+    "most_recent": true
+  },
+
+    "instance_type": "t2.nano",
+    "ssh_username": "ubuntu",
+    "ami_name": "Packer_Demo",
+    "vpc_id": "",
+    "subnet_id": "",
+    "force_deregister": true,
+    "force_delete_snapshot": true,
+    "launch_block_device_mappings": [
+    {
+      "device_name": "/dev/sda1",
+      "volume_size": 8,
+      "volume_type": "standard",
+      "delete_on_termination": true
+    }
+  ]
+  }]
+}
