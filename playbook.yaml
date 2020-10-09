@@ -1,0 +1,53 @@
+---
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Update system
+      package:
+        name: "*"
+        state: latest
+
+    - name: Install dependencies
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - curl
+        - unzip
+
+    - name: Download aws-cli-v2 archive
+      get_url:
+        url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+        dest: "/tmp/awscliv2.zip"
+      register: aws_cli_download
+
+    - name: Unzip aws-cli-v2 archive
+      unarchive:
+        src: "/tmp/awscliv2.zip"
+        dest: "/tmp"
+        copy: no
+        creates: "/tmp/aws"
+      when: aws_cli_download.changed
+      register: aws_cli_unarchive
+
+    - name: Install aws-cli-v2
+      shell: "/tmp/aws/install -i /usr/local/aws-cli -b /usr/local/bin"
+      when: aws_cli_unarchive.changed
+      changed_when: False
+
+    - name: Verify installation
+      block:
+        - name: Check if file exists
+          stat:
+            path: "/usr/local/bin/aws"
+          register: stat_result
+
+        - name: Check if aws command works
+          shell: "aws --version"
+          changed_when: False
+          register: cmd_output
+
+        - name: Fail if conditions are met
+          fail:
+            msg: "aws-cli is not working!"
+          when: stat_result.stat | length == 0 or cmd_output.rc > 0
